@@ -11,13 +11,13 @@ import java.util.List;
 
 public interface StudentService {
 
-    StudentProfileResponse registerStudent(StudentRegisterRequest request);
+    StudentProfileResponse registerStudent(StudentRegisterRequest request, MultipartFile image);
 
     StudentLoginResponse loginStudent(StudentLoginRequest request);
 
     StudentProfileResponse getProfile(Long id);
 
-    StudentProfileResponse updateProfile(Long id, StudentRegisterRequest request);
+    StudentProfileResponse updateProfile(Long id, StudentRegisterRequest request, MultipartFile image);
 
     List<StudentProfileResponse> getAllStudents();
 

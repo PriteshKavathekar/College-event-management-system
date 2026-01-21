@@ -17,6 +17,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -24,5 +26,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role;  //STUDENT, COORDINATOR, ADMIN
+    private String role;  // COORDINATOR, ADMIN
+
+    private String department; // for coordinator only
 }

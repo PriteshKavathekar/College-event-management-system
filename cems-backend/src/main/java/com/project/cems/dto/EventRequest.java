@@ -1,0 +1,14 @@
+package com.project.cems.dto;
+
+import lombok.Data;
+
+@Data
+public class EventRequest {
+    private String title;
+    private String description;
+    private String department;
+    private String eventDate;
+    private String eventTime;
+    private String venue;
+
+}

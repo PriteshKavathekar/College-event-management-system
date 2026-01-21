@@ -1,8 +1,6 @@
 package com.project.cems.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,12 +13,16 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Event {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private String description;
     private String department;
-    private String date;
+    private String eventDate;
+    private String eventTime;
     private String venue;
-    private String imagePath;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] image;
 }

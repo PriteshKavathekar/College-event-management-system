@@ -12,4 +12,5 @@ public class StudentProfileResponse {
     private String gender;
     private String email;
     private String mobile;
+    private String image; //Base64
 }

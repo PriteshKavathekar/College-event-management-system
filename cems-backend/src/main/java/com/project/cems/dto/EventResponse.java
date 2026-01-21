@@ -8,7 +8,8 @@ public class EventResponse {
     private String title;
     private String description;
     private String department;
-    private String date;
+    private String eventDate;
+    private String eventTime;
     private String venue;
-    private String imagePath;
+    private String image; //Base64
 }

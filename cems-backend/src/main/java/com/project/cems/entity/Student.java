@@ -23,4 +23,8 @@ public class Student {
     private String email;
     private String mobile;
     private String password;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] image;
 }

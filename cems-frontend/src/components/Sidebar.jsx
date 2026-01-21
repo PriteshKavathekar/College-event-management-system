@@ -1,43 +1,56 @@
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const Sidebar = ({ role }) => {
+export default function Sidebar({ title, links }) {
   const navigate = useNavigate();
 
-  const logout = () => {
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (!confirmLogout) return;
+
     localStorage.clear();
+    toast.success("Logged out successfully");
     navigate("/");
   };
 
   return (
-    <div className="bg-black p-3" style={{ width: "230px" }}>
-      <h5 className="text-primary mb-4">CEMS</h5>
+    <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+      {/* TOP */}
+      <div className="p-6">
+        <h2 className="text-xl font-semibold mb-8 tracking-wide">
+          {title}
+        </h2>
 
-      <ul className="nav flex-column gap-2">
-        {role === "STUDENT" && (
-          <li style={{ cursor: "pointer" }}>
-            👤 My Profile
-          </li>
-        )}
+        <nav className="space-y-2">
+          {links.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `block px-4 py-2 rounded-lg text-sm font-medium transition
+                ${
+                  isActive
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+      </div>
 
-        {role === "COORDINATOR" && (
-          <li
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/dashboard?tab=students")}
-          >
-            👥 Manage Students
-          </li>
-        )}
-
-        <li
-          className="text-danger mt-4"
-          style={{ cursor: "pointer" }}
-          onClick={logout}
+      {/* BOTTOM */}
+      <div className="mt-auto p-6 border-t border-gray-800">
+        <button
+          onClick={handleLogout}
+          className="w-full text-left px-4 py-2 rounded-lg text-sm font-medium
+                     text-red-400 hover:bg-red-500/10 hover:text-red-500 transition"
         >
-          🚪 Logout
-        </li>
-      </ul>
-    </div>
+          Logout
+        </button>
+      </div>
+    </aside>
   );
-};
-
-export default Sidebar;
+}

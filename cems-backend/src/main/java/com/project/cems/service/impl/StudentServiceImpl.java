@@ -6,13 +6,12 @@ import com.project.cems.dto.StudentProfileResponse;
 import com.project.cems.dto.StudentRegisterRequest;
 import com.project.cems.entity.Student;
 import com.project.cems.repository.StudentRepository;
-import com.project.cems.repository.UserRepository;
 import com.project.cems.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -23,7 +22,7 @@ public class StudentServiceImpl implements StudentService {
     private final ModelMapper modelMapper;
 
     @Override
-    public StudentProfileResponse registerStudent(StudentRegisterRequest request) {
+    public StudentProfileResponse registerStudent(StudentRegisterRequest request, MultipartFile image) {
 
         // check email duplicate
         if (studentRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -33,9 +32,23 @@ public class StudentServiceImpl implements StudentService {
         if (studentRepository.findByStudentPrn(request.getStudentPrn()).isPresent()) {
             throw new RuntimeException("PRN already registered");
         }
+
         Student student = modelMapper.map(request, Student.class);
-        Student savedStudent = studentRepository.save(student);
-        return modelMapper.map(savedStudent,StudentProfileResponse.class);
+
+        validateImage(image);
+
+        // optional image
+        try {
+            if (image != null && !image.isEmpty()) {
+                student.setImage(image.getBytes());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Image upload failed");
+        }
+
+        Student saved = studentRepository.save(student);
+
+        return toProfileResponse(saved);
     }
 
     public StudentLoginResponse loginStudent(StudentLoginRequest request){
@@ -58,18 +71,31 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentProfileResponse updateProfile(Long id, StudentRegisterRequest request) {
+    public StudentProfileResponse updateProfile(Long id,
+                                                StudentRegisterRequest request,
+                                                MultipartFile image) {
         Student student = studentRepository.findById(id).orElseThrow(() -> new RuntimeException("student not found"));
 
+        // update fields
         student.setName(request.getName());
         student.setDepartment(request.getDepartment());
         student.setYear(request.getYear());
         student.setGender(request.getGender());
         student.setMobile(request.getMobile());
 
-        Student updated = studentRepository.save(student);
+        validateImage(image);
 
-        return modelMapper.map(student, StudentProfileResponse.class);
+        // update image if provided
+        try {
+            if (image != null && !image.isEmpty()) {
+                student.setImage(image.getBytes());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Image update failed");
+        }
+
+        Student updated = studentRepository.save(student);
+        return toProfileResponse(updated);
     }
 
     @Override
@@ -81,4 +107,32 @@ public class StudentServiceImpl implements StudentService {
     public void deleteStudent(Long id) {
         studentRepository.deleteById(id);
     }
+
+    //  helper method
+    private StudentProfileResponse toProfileResponse(Student student) {
+        StudentProfileResponse res = modelMapper.map(student, StudentProfileResponse.class);
+
+        if (student.getImage() != null) {
+            res.setImage(
+                    Base64.getEncoder().encodeToString(student.getImage())
+            );
+        }
+        return res;
+    }
+
+    // validate image
+    private void validateImage(MultipartFile image) {
+        if (image == null || image.isEmpty()) return;
+
+        String contentType = image.getContentType();
+
+        if (contentType == null ||
+                !(contentType.equals("image/jpeg") ||
+                        contentType.equals("image/png") ||
+                        contentType.equals("image/jpg"))) {
+
+            throw new RuntimeException("Only image files (JPG, JPEG, PNG) are allowed");
+        }
+    }
+
 }
